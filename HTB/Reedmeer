@@ -1,0 +1,355 @@
+# Redis Notes
+
+## What is Redis?
+
+Redis stands for **REmote DIctionary Server**.
+
+Redis is an **open-source NoSQL database** that stores data as **key-value pairs**.
+
+Unlike traditional databases like MySQL, which store data in tables and rows, Redis stores information like a dictionary.
+
+Example:
+
+```
+Key              Value
+-------------------------
+username         nimisha
+role             student
+```
+
+If we know the key, we can ask Redis for the value.
+
+Example:
+
+```
+GET username
+```
+
+Response:
+
+```
+nimisha
+```
+
+---
+
+# Type of Database
+
+Redis is:
+
+* NoSQL database
+* Key-value database
+* In-memory database
+
+## What does "in-memory" mean?
+
+Redis mainly stores data in RAM instead of only on disk.
+
+Advantages:
+
+* Very fast read/write operations
+* Good for caching
+* Used for sessions, temporary data, queues, and real-time applications
+
+---
+
+# Common Uses of Redis
+
+Redis is commonly used for:
+
+* Website caching
+* User sessions
+* Real-time statistics
+* Message queues
+* Gaming leaderboards
+* Temporary data storage
+
+Example:
+
+A website may store:
+
+```
+User login session → Redis
+```
+
+so the website can quickly check whether a user is logged in.
+
+---
+
+# Redis Default Port
+
+Redis normally runs on:
+
+```
+6379/TCP
+```
+
+When performing Nmap scans:
+
+```
+6379/tcp open redis
+```
+
+means:
+
+* A Redis server is running
+* We can try connecting to it
+
+---
+
+# Redis and Penetration Testing
+
+During a penetration test, if we find Redis:
+
+```
+6379 open
+```
+
+we ask:
+
+1. Is Redis accessible?
+2. Does it require authentication?
+3. What information is stored?
+4. Can we read or modify data?
+
+---
+
+# Redis Client Tool
+
+The command-line utility used to interact with Redis is:
+
+```
+redis-cli
+```
+
+Example:
+
+```bash
+redis-cli -h <TARGET_IP>
+```
+
+Meaning:
+
+* `redis-cli` → Redis command-line client
+* `-h` → specify host/IP address
+
+Example:
+
+```bash
+redis-cli -h 10.129.x.x
+```
+
+---
+
+# Basic Redis Commands
+
+## Check connection
+
+```
+PING
+```
+
+Response:
+
+```
+PONG
+```
+
+This means Redis is responding.
+
+---
+
+## Show Redis information
+
+```
+INFO
+```
+
+Shows details about:
+
+* Redis version
+* Memory usage
+* Configuration
+* Server information
+
+---
+
+## List available keys
+
+```
+KEYS *
+```
+
+Example output:
+
+```
+username
+password
+flag
+```
+
+A key is like a variable name that stores data.
+
+---
+
+## Retrieve data
+
+Command:
+
+```
+GET key_name
+```
+
+Example:
+
+```
+GET username
+```
+
+Output:
+
+```
+admin
+```
+
+---
+
+## Check database size
+
+```
+DBSIZE
+```
+
+Shows the number of stored keys.
+
+---
+
+# Redis Authentication
+
+Some Redis servers require a password.
+
+Without authentication:
+
+```
+redis-cli -h IP
+```
+
+With authentication:
+
+```
+redis-cli -h IP -a password
+```
+
+If authentication is not enabled, anyone who can reach Redis may be able to access stored data.
+
+---
+
+# HTB Redis Enumeration Workflow
+
+When you find Redis:
+
+```
+Nmap Scan
+     |
+     ↓
+6379 open
+     |
+     ↓
+Redis detected
+     |
+     ↓
+Connect using redis-cli
+     |
+     ↓
+Check if authentication is required
+     |
+     ↓
+Enumerate keys
+     |
+     ↓
+Read interesting values
+     |
+     ↓
+Find flag
+```
+
+---
+
+# Redeemer HTB Example
+
+Scan:
+
+```bash
+nmap -sC -sV <IP>
+```
+
+Finding:
+
+```
+6379/tcp open redis
+```
+
+Means:
+
+* Target is running Redis
+* Use Redis client
+
+Connect:
+
+```bash
+redis-cli -h <IP>
+```
+
+Then:
+
+```
+INFO
+```
+
+```
+KEYS *
+```
+
+```
+GET <key>
+```
+
+---
+
+# Important Terms
+
+| Term      | Meaning                                            |
+| --------- | -------------------------------------------------- |
+| Redis     | Fast NoSQL key-value database                      |
+| Key       | Name used to store/retrieve data                   |
+| Value     | Data stored inside a key                           |
+| NoSQL     | Database type that does not use traditional tables |
+| In-memory | Data stored mainly in RAM                          |
+| redis-cli | Command-line tool for Redis                        |
+
+---
+
+# HTB Thinking Pattern
+
+Whenever I see:
+
+```
+6379/tcp open
+```
+
+I should think:
+
+```
+Port 6379
+      ↓
+Redis
+      ↓
+redis-cli
+      ↓
+Enumerate keys
+      ↓
+Search for useful information
+```
+
+---
+
