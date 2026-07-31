@@ -12,13 +12,13 @@ The first step in any machine is to identify the services running on the target.
 
 I used:
 
-```bash
+
 nmap -sC -sV <TARGET_IP>
-```
+
 
 ### Meaning
 
-* `nmap` → Network scanner
+* `nmap` → Network scanner [shows open ports]
 * `-sC` → Run default NSE scripts
 * `-sV` → Detect service versions
 * `<TARGET_IP>` → Target machine IP
@@ -71,9 +71,8 @@ If `WorkShares` is shared, another computer can connect to it.
 
 To list available shares:
 
-```bash
 smbclient -L //<TARGET_IP> -N
-```
+
 
 ### Breakdown
 
@@ -97,9 +96,9 @@ WorkShares
 
 After identifying the accessible share:
 
-```bash
+
 smbclient //<TARGET_IP>/WorkShares -N
-```
+
 
 If successful:
 
@@ -115,33 +114,33 @@ This means I am now interacting with the shared folder.
 
 List files:
 
-```bash
+
 ls
-```
+
 
 Enter a directory:
 
-```bash
+
 cd FolderName
-```
+
 
 Go back:
 
-```bash
+
 cd ..
-```
+
 
 Download a file:
 
-```bash
+
 get filename.txt
-```
+
 
 Exit SMB:
 
-```bash
+
 exit
-```
+
 
 ---
 
@@ -149,9 +148,9 @@ exit
 
 I tried:
 
-```bash
+
 get flag.txt
-```
+
 
 immediately after entering the share.
 
