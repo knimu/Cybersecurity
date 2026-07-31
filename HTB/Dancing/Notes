@@ -1,0 +1,248 @@
+# HTB Starting Point – Dancing
+
+## Objective
+
+Learn how to identify an SMB service, enumerate SMB shares, and retrieve files from an accessible share.
+
+---
+
+# What I Learned
+
+The first step in any machine is to identify the services running on the target.
+
+I used:
+
+```bash
+nmap -sC -sV <TARGET_IP>
+```
+
+### Meaning
+
+* `nmap` → Network scanner
+* `-sC` → Run default NSE scripts
+* `-sV` → Detect service versions
+* `<TARGET_IP>` → Target machine IP
+
+Example output:
+
+```
+PORT     STATE SERVICE
+445/tcp  open  microsoft-ds
+```
+
+---
+
+# Why Port 445 Matters
+
+Port **445** usually indicates that the target is running **SMB (Server Message Block)**.
+
+SMB is a protocol used by Windows for:
+
+* Sharing files
+* Sharing folders
+* Sharing printers
+* Network resource sharing
+
+When I see **445 open**, my next thought should be:
+
+> "Let's enumerate the SMB shares."
+
+---
+
+# SMB Shares
+
+A share is simply a folder that is accessible over the network.
+
+Example:
+
+```
+Windows Computer
+
+Documents
+Pictures
+WorkShares
+```
+
+If `WorkShares` is shared, another computer can connect to it.
+
+---
+
+# SMB Enumeration
+
+To list available shares:
+
+```bash
+smbclient -L //<TARGET_IP> -N
+```
+
+### Breakdown
+
+* `smbclient` → SMB client
+* `-L` → List available shares
+* `//TARGET_IP` → Target machine
+* `-N` → Use no password (anonymous login)
+
+Output:
+
+```
+ADMIN$
+C$
+IPC$
+WorkShares
+```
+
+---
+
+# Connecting to a Share
+
+After identifying the accessible share:
+
+```bash
+smbclient //<TARGET_IP>/WorkShares -N
+```
+
+If successful:
+
+```
+smb: \>
+```
+
+This means I am now interacting with the shared folder.
+
+---
+
+# Useful SMB Commands
+
+List files:
+
+```bash
+ls
+```
+
+Enter a directory:
+
+```bash
+cd FolderName
+```
+
+Go back:
+
+```bash
+cd ..
+```
+
+Download a file:
+
+```bash
+get filename.txt
+```
+
+Exit SMB:
+
+```bash
+exit
+```
+
+---
+
+# My Mistake
+
+I tried:
+
+```bash
+get flag.txt
+```
+
+immediately after entering the share.
+
+It failed because the file was **inside a subfolder**, not in the current directory.
+
+Correct approach:
+
+1. Use `ls`
+2. Enter folders with `cd`
+3. Run `ls` again
+4. Find the file
+5. Download it with `get`
+
+---
+
+# Attack Workflow
+
+```
+Scan Target
+      │
+      ▼
+Find Open Ports
+      │
+      ▼
+445 Open
+      │
+      ▼
+SMB Detected
+      │
+      ▼
+List SMB Shares
+      │
+      ▼
+Find Accessible Share
+      │
+      ▼
+Connect
+      │
+      ▼
+Explore Files
+      │
+      ▼
+Download Flag
+```
+
+---
+
+# Commands Used
+
+```bash
+nmap -sC -sV <TARGET_IP>
+
+smbclient -L //<TARGET_IP> -N
+
+smbclient //<TARGET_IP>/WorkShares -N
+
+ls
+
+cd FolderName
+
+cd ..
+
+get filename
+
+exit
+```
+
+---
+
+# Key Takeaways
+
+* Always start with an Nmap scan.
+* Port **445** usually means SMB.
+* Use `smbclient` to interact with SMB shares.
+* `-L` lists available shares.
+* `-N` attempts anonymous (no-password) access.
+* Explore directories before trying to download files.
+* Understand **why** you are using each command, not just the syntax.
+
+---
+
+# New Terms
+
+| Term            | Meaning                                               |
+| --------------- | ----------------------------------------------------- |
+| SMB             | Server Message Block, a Windows file-sharing protocol |
+| Share           | A folder available over the network                   |
+| Enumeration     | Gathering information about a target                  |
+| Anonymous Login | Accessing a service without a username or password    |
+| `smbclient`     | Command-line tool for interacting with SMB shares     |
+
+---
+
+
